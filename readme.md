@@ -2,6 +2,12 @@
 
 If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you know that the relations are not exposed but place in a struct called `.R`. This works fine if you don't need expose the relations with json. This package is made, so you don't have to manually make custom functions to expose them as stated here: [https://github.com/volatiletech/sqlboiler/issues/272](https://github.com/volatiletech/sqlboiler/issues/272).
 
+## Installation
+
+```bash
+go install github.com/expanse-agency/sqlboiler-erg
+```
+
 ## Usage
 
 ### Config options
