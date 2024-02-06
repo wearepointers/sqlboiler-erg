@@ -5,21 +5,14 @@ import (
 	"fmt"
 	"go/format"
 	"os"
-	"path"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"text/template"
+
+	"github.com/expanse-agency/sqlboiler-erg/templates"
 )
 
 func (c *Config) writeTemplate(input, output string, data any) error {
-	_, fileName, _, ok := runtime.Caller(0)
-	if !ok {
-		return fmt.Errorf("could not get package directory path")
-	}
-
-	templateFilePath := path.Join(filepath.Dir(fileName), "..", input)
-	content, err := os.ReadFile(templateFilePath)
+	content, err := templates.Builtin.ReadFile(input)
 	if err != nil {
 		return err
 	}

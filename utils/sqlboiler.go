@@ -286,7 +286,7 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 
 func (c *Config) writeSQLBoilerTablesToERGFiles(tables []SQLBoilerTable) error {
 	for _, table := range tables {
-		if err := c.writeTemplate("templates/erg_table.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, fmt.Sprintf("%v.go", table.Name.SnakeCase)), table); err != nil {
+		if err := c.writeTemplate("main/erg_table.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, fmt.Sprintf("%v.go", table.Name.SnakeCase)), table); err != nil {
 			return err
 		}
 	}
@@ -295,7 +295,7 @@ func (c *Config) writeSQLBoilerTablesToERGFiles(tables []SQLBoilerTable) error {
 }
 
 func (c *Config) writeSQLBoilerEnumsToERGFiles(enums []SQLBoilerTableColumnEnum) error {
-	if err := c.writeTemplate("templates/erg_enums.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_types.go"), enums); err != nil {
+	if err := c.writeTemplate("main/erg_enums.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_types.go"), enums); err != nil {
 		return err
 	}
 
@@ -308,14 +308,14 @@ type ergModel struct {
 }
 
 func (c *Config) writeSQLBoilerTablesToERGFile(tables []SQLBoilerTable) error {
-	return c.writeTemplate("templates/erg_tables.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_tables.go"), ergModel{
+	return c.writeTemplate("main/erg_tables.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_tables.go"), ergModel{
 		Imports: c.getERGDefaultImports(),
 		Tables:  tables,
 	})
 }
 
 func (c *Config) writeERGHelperFunctionsToFile() error {
-	return c.writeTemplate("templates/erg_helpers.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_helpers.go"), nil)
+	return c.writeTemplate("main/erg_helpers.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_helpers.go"), nil)
 }
 
 type tsModel struct {
@@ -328,7 +328,7 @@ func (c *Config) writeSQLBoilerTablesToTypeScriptFiles(tables []SQLBoilerTable, 
 		return nil
 	}
 
-	if err := c.writeTemplate("templates/ts_tables.gotpl", c.sqlBoilerConfig.Erg.OutputTS, tsModel{
+	if err := c.writeTemplate("main/ts_tables.tpl", c.sqlBoilerConfig.Erg.OutputTS, tsModel{
 		Tables: tables,
 		Enums:  enums,
 	}); err != nil {

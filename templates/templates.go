@@ -2,8 +2,10 @@
 // default templates.
 package templates
 
-import "embed"
+import (
+	"embed"
+)
 
 // Builtin sqlboiler-erg templates
-//go:embed main test
+//go:embed main
 var Builtin embed.FS
