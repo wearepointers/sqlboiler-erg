@@ -26,7 +26,7 @@ func (r *Router) GetUsers(c *framework.Context) {
     c.JSON(http.StatusInternalServerError, err)
     return
   }
-  c.JSON(http.StatusOK, am.ToUsers(users)) // Convert SQLBoiler model to API model
+  c.JSON(http.StatusOK, am.ToUsers(users, nil)) // Convert SQLBoiler model to API model
 }
 
 ```
