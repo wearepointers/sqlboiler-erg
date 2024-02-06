@@ -4,6 +4,9 @@ If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you k
 
 ## Installation
 
+First you have to install the code generator binaries. Keep in mind that you still have to install `sqlboiler` separately.
+
+
 ```bash
 go install github.com/expanse-agency/sqlboiler-erg
 ```
