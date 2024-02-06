@@ -8,7 +8,7 @@ First you have to install the code generator binaries. Keep in mind that you sti
 
 
 ```bash
-go install github.com/expanse-agency/sqlboiler-erg
+go install github.com/expanse-agency/sqlboiler-erg@latest
 ```
 
 ## Usage
