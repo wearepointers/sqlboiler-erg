@@ -21,7 +21,7 @@ type {{ .Name.PascalCase }} struct {
 
 type {{.Name.PascalCase}}Slice []*{{.Name.PascalCase}}
 
-func As{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Name.PascalCase }}Slice, exclude []string, acf CustomFieldsSlice) {{ .Name.PascalCase }}Slice {
+func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Name.PascalCase }}Slice, acf CustomFieldsSlice, exclude ...string) {{ .Name.PascalCase }}Slice {
 	if exclude == nil {
 		exclude = []string{}
 	}
@@ -35,12 +35,12 @@ func As{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Nam
             }
         }
 
-		s[i] = As{{singularize .Name.PascalCase}}(d, exclude, cf)
+		s[i] = To{{singularize .Name.PascalCase}}(d, cf, exclude...)
 	}
 	return s
 }
 
-func As{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, exclude []string, customFields CustomFields) *{{ .Name.PascalCase }} {
+func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, customFields CustomFields, exclude ...string) *{{ .Name.PascalCase }} {
     if exclude == nil {
         exclude = []string{}
     }
@@ -63,7 +63,7 @@ func As{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
     if a.R != nil {
         {{- range $relation := .Relations }}
             if a.R.{{ .Name.PascalCase }} != nil && doesNotContain(exclude,"{{ $snakeCaseName}}.{{ singularize .MainTableName.SnakeCase }}") {
-                p.{{ .Name.PascalCase }} = As{{if .IsMany }}{{ pluralize .MainTableName.PascalCase }}{{- else}}{{singularize .MainTableName.PascalCase }}{{- end}}(a.R.{{ .Name.PascalCase }}, append(exclude, "{{ singularize .MainTableName.SnakeCase}}.{{ $snakeCaseName }}"), nil)
+                p.{{ .Name.PascalCase }} = To{{if .IsMany }}{{ pluralize .MainTableName.PascalCase }}{{- else}}{{singularize .MainTableName.PascalCase }}{{- end}}(a.R.{{ .Name.PascalCase }}, nil, append(exclude, "{{ singularize .MainTableName.SnakeCase}}.{{ $snakeCaseName }}")...)
             }
         {{- end }}
     }

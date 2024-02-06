@@ -13,6 +13,24 @@ go install github.com/expanse-agency/sqlboiler-erg@latest
 
 ## Usage
 
+```go
+
+import (
+  "github.com/yourpackage/models/dm" // Database Models (from sqlboiler)
+  "github.com/yourpackage/models/am" // Api Models (from sqlboiler-erg)
+)
+
+func (r *Router) GetUsers(c *framework.Context) {
+  users, err := dm.Users().All(r.db, c)
+  if err != nil {
+    c.JSON(http.StatusInternalServerError, err)
+    return
+  }
+  c.JSON(http.StatusOK, am.ToUsers(users)) // Convert SQLBoiler model to API model
+}
+
+```
+
 ### Config options
 You can also pass these options as flags.
 
@@ -31,9 +49,9 @@ You can also pass these options as flags.
 // your sqlboiler config
 ...
 [erg]
-output = "models/erg"
+output = "models/am"
 output-ts = "models/models.ts"
-pkgname = "erg"
+pkgname = "am"
 wipe    = true
 blacklist = ["*.password", "table.token", "*.secret_column", "table"]
 ```
