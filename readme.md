@@ -52,6 +52,7 @@ output = "models/am"
 output-ts = "models/models.ts"
 pkgname = "am"
 wipe    = true
+inline = false
 blacklist = ["*.password", "table.token", "*.secret_column", "table"]
 ```
 
