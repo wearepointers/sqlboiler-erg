@@ -53,7 +53,7 @@ output-ts = "models/models.ts"
 pkgname = "am"
 wipe    = true
 inline = false
-blacklist = ["*.password", "table.token", "*.secret_column", "table"]
+blacklist = ["*.password", "table.token", "*.secret_column", "*.*ends_with", "table"]
 ```
 
 ### Initial Generation
@@ -85,7 +85,7 @@ type User struct {
 }
 ```
 
-However sqlboiler does not omit empty fields and the `tag-ignore` option is only for specific fields. I wanted to disable certain fields like this: `*.password`. If you want to have the structs inlined you can use the `inline` option. 
+However sqlboiler does not omit empty fields and the `tag-ignore` option is only for specific fields. I wanted to disable certain fields like this: `*.password` or `*.*hash` (ends with hash). If you want to have the structs inlined you can use the `inline` option. 
 ```go
 type User struct {
     ID:               a.ID,

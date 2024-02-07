@@ -24,20 +24,34 @@ func (c *Config) isTSEnabled() bool {
 
 func (c *Config) isBlackListed(tn, cn string) bool {
 	for _, b := range c.sqlBoilerConfig.Erg.Blacklist {
+		// tn = true
 		if b == tn {
 			return true
 		}
 
-		if strings.ContainsAny(b, "*.") {
-			if cn == strings.ReplaceAll(b, "*.", "") {
-				return true
-			}
+		// tn.cn = true
+		if b == tn+"."+cn {
+			return true
 		}
 
-		if strings.ContainsAny(b, ".") {
-			if b == tn+"."+cn {
-				return true
-			}
+		// *.cn = true
+		if b == "*."+cn {
+			return true
+		}
+
+		// *cn = cn ends with = true
+		if strings.HasPrefix(b, "*") && strings.HasSuffix(cn, strings.TrimPrefix(b, "*")) {
+			return true
+		}
+
+		// *.*cn = cn ends with = true
+		if strings.HasPrefix(b, "*.*") && strings.HasSuffix(cn, strings.TrimPrefix(b, "*.*")) {
+			return true
+		}
+
+		// tn.*cn = cn ends with = true
+		if strings.HasPrefix(b, tn+".*") && strings.HasSuffix(cn, strings.TrimPrefix(b, tn+".*")) {
+			return true
 		}
 	}
 
