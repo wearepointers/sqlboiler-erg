@@ -43,6 +43,9 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		"ergPkgName": func() string {
 			return c.sqlBoilerConfig.Erg.Pkgname
 		},
+		"isInline": func() bool {
+			return c.sqlBoilerConfig.Erg.Inline
+		},
 		"pluralize": func(s string) string {
 			return pluralize(s)
 		},

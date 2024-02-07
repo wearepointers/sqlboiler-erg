@@ -8,9 +8,14 @@ import (
 )
 
 type {{ .Name.PascalCase }} struct {
+    {{ if isInline }}
+    *{{sqlboilerPkgName}}.{{ .Name.PascalCase }}
+    {{- else}}
     {{- range $column := .Columns }}
             {{ .Name.PascalCase }} {{ if eq .Type.GoTypeName "bool" }}*{{ end}}{{ .Type.GoTypeName }} `boil:"{{ .Name.SnakeCase }}" json:"{{.Name.SnakeCase}},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{  .Name.SnakeCase }}"`
     {{- end }}
+    {{- end }}
+
 
     {{ range $relation := .Relations }}
         {{ .Name.PascalCase }} {{ .Type.GoTypeName }} `boil:"{{ .Name.SnakeCase }}" json:"{{ .Name.SnakeCase }},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{ .Name.SnakeCase }}"`
@@ -46,6 +51,9 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
     }
     
     p := {{ .Name.PascalCase }}{
+        {{ if isInline}}
+        {{.Name.PascalCase}}: a,
+        {{- else}}
         {{- range $column := .Columns }}
         {{- if .Type.IsNullable }}
             {{- if eq .Type.GoType "null.Time" }}
@@ -55,6 +63,7 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
             {{- end}}
         {{- else }}
             {{ .Name.PascalCase }}: {{ convertToFuncType .Type "a." .Name.PascalCase }},
+        {{- end}}
         {{- end}}
         {{- end}}
     }

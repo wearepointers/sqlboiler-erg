@@ -46,6 +46,7 @@ type ERGConfig struct {
 	OutputTS  string   `toml:"output-ts"`
 	Pkgname   string   `toml:"pkgname"`
 	Wipe      bool     `toml:"wipe"`
+	Inline    bool     `toml:"inline"`
 	Blacklist []string `toml:"blacklist"`
 }
 

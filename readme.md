@@ -40,14 +40,13 @@ You can also pass these options as flags.
 | output              | "erg_models"  | The name of the folder to output to |
 | output-ts |     | The name of the ts file (models.ts), no file is no typescript generation. Can also be ../../models.ts or dir/other_dir/filename.ts |
 | wipe                | false     | Delete the output folder before generation to ensure sanity |
+| inline             | false     | Whether to inline the slqboiler structs or not |
 | blacklist          | []        | Can be table or column. Valid: "table", "table.column", "*.column" |
 
 ### Example
 
 ```toml
-...
-// your sqlboiler config
-...
+// ... existing sqlboiler.toml config
 [erg]
 output = "models/am"
 output-ts = "models/models.ts"
@@ -75,7 +74,7 @@ Flags:
   -h, --help                       help for sqlboiler-erg
 ```
 
-### Reasoning of the blacklist
+### Reasoning of the blacklist/inline options
 
 In the original question it was proposed to just add the model like this:
 ```go
@@ -85,4 +84,16 @@ type User struct {
 }
 ```
 
-I found however that sqlboiler does not omit the json fields and disabling fields is possible with `tag-ignore` but you have to do this for every field. I found it easier to just blacklist the fields I don't want to expose and not include them in the struct. You can also easily blacklist a whole table if you don't want it to show up as a relation anywhere.
+However sqlboiler does not omit empty fields and the `tag-ignore` option is only for specific fields. I wanted to disable certain fields like this: `*.password`. If you want to have the structs inlined you can use the `inline` option. 
+```go
+type User struct {
+    ID:               a.ID,
+    // ... other fields
+		LastUsedAt:       ConvertTime(a.LastUsedAt),
+		CreatedAt:        ConvertTime(a.CreatedAt),
+		UpdatedAt:        ConvertTime(a.UpdatedAt),
+
+    Books BookSlice `json:"books,omitempty"`
+}
+```
+
