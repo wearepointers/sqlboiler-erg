@@ -89,8 +89,6 @@ However sqlboiler does not omit empty fields and the `tag-ignore` option is only
 ```go
 type User struct {
     ID:               a.ID,
-    // ... other fields
-
 	  CreatedAt:        ConvertTime(a.CreatedAt),
 	  UpdatedAt:        ConvertTime(a.UpdatedAt),
 	  CreatedAt:        ConvertNullTime(a.UpdatedAt),
