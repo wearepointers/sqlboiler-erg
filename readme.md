@@ -90,10 +90,10 @@ However sqlboiler does not omit empty fields and the `tag-ignore` option is only
 type User struct {
     ID:               a.ID,
     // ... other fields
-		LastUsedAt:       ConvertTime(a.LastUsedAt),
-		CreatedAt:        ConvertTime(a.CreatedAt),
-		UpdatedAt:        ConvertTime(a.UpdatedAt),
 
+	  CreatedAt:        ConvertTime(a.CreatedAt),
+	  UpdatedAt:        ConvertTime(a.UpdatedAt),
+	  CreatedAt:        ConvertNullTime(a.UpdatedAt),
     Books BookSlice `json:"books,omitempty"`
 }
 ```
