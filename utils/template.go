@@ -68,18 +68,23 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 				return fmt.Sprintf("%v(%v)", t.OriginalName, modelVarName)
 			}
 
-			if strings.HasPrefix(t.OriginalName, "null.") {
-				return modelVarName + ".Ptr()"
-			}
+			if strings.HasPrefix(t.OriginalName, "null.") || strings.HasPrefix(t.OriginalName, "types.") {
+				fromName := strings.ReplaceAll(t.OriginalName, ".", "Dot")
 
-			if strings.HasPrefix(t.OriginalName, "types.") {
-				s := strings.ReplaceAll(t.OriginalName, ".", "Dot")
-				sn := titleize(strings.TrimPrefix(t.FormattedName, "[]"))
-				if strings.HasPrefix(t.FormattedName, "[]") {
-					sn = fmt.Sprintf("%vSlice", sn)
+				toNameS := strings.Split(t.OriginalName, ".")
+				toNamePrefix := toNameS[0]
+				toName := toNameS[1]
+
+				if toNamePrefix == "null" {
+					toName = fmt.Sprintf("%vPtr", toName)
 				}
-				s = fmt.Sprintf("%vTo%v(%v)", s, sn, modelVarName)
-				return s
+
+				if strings.HasSuffix(toName, "Array") {
+					toName = strings.ReplaceAll(toName, "Array", "Slice")
+				}
+
+				return fmt.Sprintf("%vTo%v(%v)", fromName, toName, modelVarName)
+
 			}
 
 			return modelVarName

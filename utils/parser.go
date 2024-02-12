@@ -76,32 +76,49 @@ func getTypeFromFieldType(fieldType ast.Expr) SQLBoilerType {
 
 var sqlboilerTypes = map[string]string{
 	"time":    "time.Time",
-	"json":    "any",
-	"decimal": "float64",
+	"json":    "json",
+	"decimal": "decimal",
+	"bytes":   "[]byte",
 }
 
 func sqlboilerTypeToType(s string) string {
 	var formattedString = s
+	var isNullable = false
+	var isSlice = false
 
 	if strings.Contains(formattedString, "time") {
 		modelImports = append(modelImports, "time")
 	}
 
-	if strings.Contains(s, ".") {
-		splitted := strings.Split(s, ".")
-		formattedString = strings.ToLower(splitted[1])
+	if strings.HasPrefix(formattedString, "null.") {
+		isNullable = true
+		formattedString = strings.ToLower(strings.TrimPrefix(formattedString, "null."))
+	}
+
+	if strings.HasPrefix(formattedString, "types.") {
+		formattedString = strings.ToLower(strings.TrimPrefix(formattedString, "types."))
+
+		if strings.HasPrefix(formattedString, "null") {
+			isNullable = true
+			formattedString = strings.TrimPrefix(formattedString, "null")
+		}
+	}
+
+	if strings.Contains(formattedString, "array") {
+		isSlice = true
+		formattedString = strings.TrimSuffix(formattedString, "array")
 	}
 
 	if val, ok := sqlboilerTypes[formattedString]; ok {
 		formattedString = val
 	}
 
-	if strings.HasSuffix(formattedString, "array") {
-		formattedString = "[]" + strings.TrimSuffix(formattedString, "array")
+	if isNullable {
+		formattedString = "*" + formattedString
 	}
 
-	if strings.HasPrefix(s, "null.") {
-		formattedString = "*" + formattedString
+	if isSlice {
+		formattedString = "[]" + formattedString
 	}
 
 	return formattedString
