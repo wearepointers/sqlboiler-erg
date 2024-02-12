@@ -2,5 +2,5 @@
 package {{ergPkgName}}
 
 {{ range $e := . }}
-    type {{ .Name.PascalCase }} {{.Type.GoType}}
+    type {{ .Name.PascalCase }} {{.Type.OriginalName}}
 {{- end }}

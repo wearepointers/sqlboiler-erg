@@ -3,38 +3,15 @@ package {{ergPkgName}}
 
 import (
 	"strings"
-	"time"
 
-	"github.com/volatiletech/null/v8"
+	jsonT "encoding/json"
+	"github.com/volatiletech/sqlboiler/v4/types"
 )
 
 type CustomFields map[string]interface{}
 type CustomFieldsSlice map[string]CustomFields
 
-type json any
-
-func nullString(s null.String) *string {
-	if s.IsZero() {
-		return nil
-	}
-	return &s.String
-}
-
-
-func nullInt(s null.Int) *int {
-	if s.IsZero() {
-		return nil
-	}
-	return &s.Int
-}
-
-func nullJson(s null.JSON) *json {
-	if s.IsZero() {
-		return nil
-	}
-	j := json(s.JSON)
-	return &j 
-}
+type json jsonT.RawMessage
 
 func contains(a []string, s string) bool {
 	for _, v := range a {
@@ -49,17 +26,24 @@ func doesNotContain(a []string, s string) bool {
 	return !contains(a, s)
 }
 
-func ConvertTime(t time.Time) string {
-	if t.IsZero() {
-		return ""
+/////////////////////////////////////////////////////////////
+
+func typesDotDecimalToFloat64(td types.Decimal) float64 {
+	if td.Big == nil {
+		return 0
 	}
-	return t.Format(time.RFC3339)
+	f, _ := td.Float64()
+	return f
 }
 
-func ConvertNullTime(t null.Time) *string {
-	if t.IsZero() {
-		return nil
-	}
-	f := t.Time.Format(time.RFC3339)
-	return &f
+func typesDotStringArrayToStringSlice(tsa types.StringArray) []string {
+	return tsa
+}
+
+func typesDotBoolArrayToBoolSlice(tba types.BoolArray) []bool {
+	return tba
+}
+
+func typesDotJSONToAny(tj types.JSON) any {
+	return tj
 }

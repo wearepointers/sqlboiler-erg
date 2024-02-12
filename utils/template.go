@@ -52,30 +52,39 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		"singularize": func(s string) string {
 			return singularize(s)
 		},
+		"getTypescriptType": func(t SQLBoilerType, name string) string {
+			tsType := convertGoTypeToTypescript(t)
 
-		"convertToNullFuncType": func(s string) string {
-			return titleize(strings.TrimPrefix(strings.TrimPrefix(s, "*"), "[]"))
+			if strings.HasPrefix(t.FormattedName, "*") {
+				return fmt.Sprintf("%v?: %v", name, tsType)
+			}
+
+			return fmt.Sprintf("%v: %v", name, tsType)
 		},
-		"convertToFuncType": func(t SQLBoilerTableColumnType, pfx, n string) string {
-			n = fmt.Sprint(pfx, n)
-			if t.GoType == "time.Time" {
-				return fmt.Sprintf("ConvertTime(%v)", n)
-			}
-
-			if t.GoType == "json" {
-				return fmt.Sprintf("json(%v)", n)
-			}
+		"convertSQLBoilerToErgType": func(t SQLBoilerType, modelVar string, name string) string {
+			modelVarName := fmt.Sprintf("%v.%v", modelVar, name)
 
 			if t.IsEnum {
-				return fmt.Sprintf("%v(%v)", t.GoType, n)
+				return fmt.Sprintf("%v(%v)", t.OriginalName, modelVarName)
 			}
 
-			if t.GoTypeName == "bool" {
-				return fmt.Sprintf("&%v", n)
+			if strings.HasPrefix(t.OriginalName, "null.") {
+				return modelVarName + ".Ptr()"
 			}
 
-			return n
-		}},
+			if strings.HasPrefix(t.OriginalName, "types.") {
+				s := strings.ReplaceAll(t.OriginalName, ".", "Dot")
+				sn := titleize(strings.TrimPrefix(t.FormattedName, "[]"))
+				if strings.HasPrefix(t.FormattedName, "[]") {
+					sn = fmt.Sprintf("%vSlice", sn)
+				}
+				s = fmt.Sprintf("%vTo%v(%v)", s, sn, modelVarName)
+				return s
+			}
+
+			return modelVarName
+		},
+	},
 	).Parse(tmplte)
 	if err != nil {
 		return "", err

@@ -14,8 +14,13 @@ func (c *Config) getSQLBoilerModelsFilePath(file string) string {
 	return path.Join(c.sqlBoilerConfig.Output, file)
 }
 
-func (c *Config) getERGDefaultImports() []string {
-	return []string{c.getSQLBoilerModelsImportPath()}
+func (c *Config) getERGDefaultImports(includeModelImports bool) []string {
+	var imports []string
+	if includeModelImports {
+		imports = append(imports, modelImports...)
+	}
+	imports = append(imports, c.getSQLBoilerModelsImportPath())
+	return imports
 }
 
 func (c *Config) isTSEnabled() bool {

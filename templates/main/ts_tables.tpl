@@ -7,18 +7,18 @@ export enum {{ .Name.PascalCase }} {
 {{- end }}
 }
 
-{{ end }}
+{{- end }}
 
 {{- range $table := .Tables }}
 export interface {{ .Name.PascalCase }} {
 {{- range $column := .Columns }}
-  {{ .Name.SnakeCase }}{{- if .Type.IsNullable}}?{{- end}}: {{ .Type.TypescriptType }};
+  {{ getTypescriptType .Type .Name.SnakeCase}};
 {{- end }}
 
 {{- range $relation := .Relations }}
-  {{ .Name.SnakeCase  }}{{- if .Type.IsNullable}}?{{- end}}: {{ .Type.TypescriptType }};
+  {{ getTypescriptType .Type .Name.SnakeCase}};
 {{- end }}
 
   custom_fields?: Record<string, any>
 }
-{{ end }}
+{{- end }}

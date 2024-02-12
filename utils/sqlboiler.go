@@ -13,6 +13,7 @@ import (
 ///////////////////////////////////////////////////////////////
 
 var (
+	modelImports = []string{}
 	enumCacheMap = map[string]SQLBoilerTableColumnEnum{}
 )
 
@@ -24,6 +25,12 @@ type SQLBoilerName struct {
 	PascalCase string
 	SnakeCase  string
 	CamelCase  string
+}
+
+type SQLBoilerType struct {
+	OriginalName  string
+	FormattedName string
+	IsEnum        bool
 }
 
 ///////////////////////////////////////////////////////////////
@@ -39,22 +46,15 @@ type SQLBoilerTable struct {
 
 type SQLBoilerTableRelation struct {
 	Name          SQLBoilerName
-	MainTableName SQLBoilerName // Don't know if this is really needed
+	MainTableName SQLBoilerName
 	IsMany        bool
-	Type          SQLBoilerTableColumnType
+	Type          SQLBoilerType
 }
 
 type SQLBoilerTableColumn struct {
-	Name SQLBoilerName
-	Type SQLBoilerTableColumnType
-}
-
-type SQLBoilerTableColumnType struct {
-	GoType         string
-	GoTypeName     string
-	TypescriptType string
-	IsNullable     bool
-	IsEnum         bool
+	Name       SQLBoilerName
+	Type       SQLBoilerType
+	IsRelation bool
 }
 
 func (c *Config) getSQLBoilerTablesAndEnums() ([]SQLBoilerTable, []SQLBoilerTableColumnEnum, error) {
@@ -78,7 +78,7 @@ func (c *Config) getSQLBoilerTablesAndEnums() ([]SQLBoilerTable, []SQLBoilerTabl
 			Name:      table.Name,
 			Columns:   columns,
 			Relations: relations,
-			Imports:   c.getERGDefaultImports(),
+			Imports:   c.getERGDefaultImports(true),
 		}
 	}
 
@@ -92,7 +92,7 @@ func (c *Config) getSQLBoilerTablesAndEnums() ([]SQLBoilerTable, []SQLBoilerTabl
 type SQLBoilerTableColumnEnum struct {
 	Name   SQLBoilerName
 	Values []SQLBoilerTableColumnEnumValue
-	Type   SQLBoilerTableColumnType
+	Type   SQLBoilerType
 }
 
 type SQLBoilerTableColumnEnumValue struct {
@@ -112,9 +112,8 @@ func (c *Config) readSQLBoilerEnumsFromFile() ([]SQLBoilerTableColumnEnum, error
 			currentType = typeSpec.Name.Name
 			if basicLit, ok := typeSpec.Type.(*ast.Ident); ok {
 				enumCacheMap[currentType] = SQLBoilerTableColumnEnum{
-					Type: SQLBoilerTableColumnType{
-						GoType:     basicLit.Name,
-						GoTypeName: basicLit.Name,
+					Type: SQLBoilerType{
+						OriginalName: basicLit.Name,
 					},
 				}
 			}
@@ -179,8 +178,7 @@ func (c *Config) readSQLBoilerTablesFromFile() ([]SQLBoilerTable, error) {
 							if label, ok := kv.Key.(*ast.Ident); ok {
 								if strVal, ok := kv.Value.(*ast.BasicLit); ok {
 									// Extract the string value and unquote it
-									value := strVal.Value
-									value = value[1 : len(value)-1] // Remove surrounding quotes
+									value := strings.ReplaceAll(strVal.Value, `"`, "")
 
 									if c.isBlackListed(value, "") {
 										continue
@@ -228,9 +226,9 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 				for _, field := range structType.Fields.List {
 					pascalCase := field.Names[0].Name
 
-					t := getFieldType(field.Type)
+					t := getTypeFromFieldType(field.Type)
 
-					mainTableNamePascalCase := strings.TrimSuffix(t.GoType, "Slice")
+					mainTableNamePascalCase := strings.TrimSuffix(t.OriginalName, "Slice")
 					if c.isBlackListed(toSnakeCase(mainTableNamePascalCase), "") {
 						continue
 					}
@@ -246,7 +244,7 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 							SnakeCase:  toSnakeCase(mainTableNamePascalCase),
 							CamelCase:  toCamelCase(mainTableNamePascalCase),
 						},
-						IsMany: strings.HasSuffix(t.GoType, "Slice"),
+						IsMany: strings.HasSuffix(t.OriginalName, "Slice"),
 						Type:   t,
 					})
 				}
@@ -254,7 +252,7 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 			if structType, isStruct := x.Type.(*ast.StructType); isStruct && x.Name.Name == table.Name.PascalCase {
 				for _, field := range structType.Fields.List {
 					if !hasTag(field, "-") {
-						t := getFieldType(field.Type)
+						t := getTypeFromFieldType(field.Type)
 						pascalCase := field.Names[0].Name
 						snakeCase := getSnakeCaseFromTag(field) // Can be named differently than the field name
 
@@ -268,7 +266,8 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 								SnakeCase:  snakeCase,
 								CamelCase:  toCamelCase(pascalCase),
 							},
-							Type: t,
+							Type:       t,
+							IsRelation: false,
 						})
 					}
 				}
@@ -276,6 +275,21 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 		}
 		return true
 	})
+
+	// if table.Name.SnakeCase != "account" {
+	// 	return columns, relations, nil
+	// }
+
+	for i, column := range columns {
+		snakeCaseWithoutID := strings.Replace(column.Name.SnakeCase, "_id", "", -1)
+
+		for _, relation := range relations {
+			if relation.Name.SnakeCase == snakeCaseWithoutID {
+				columns[i].IsRelation = true
+			}
+		}
+
+	}
 
 	return columns, relations, nil
 }
@@ -309,7 +323,7 @@ type ergModel struct {
 
 func (c *Config) writeSQLBoilerTablesToERGFile(tables []SQLBoilerTable) error {
 	return c.writeTemplate("main/erg_tables.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_tables.go"), ergModel{
-		Imports: c.getERGDefaultImports(),
+		Imports: c.getERGDefaultImports(false),
 		Tables:  tables,
 	})
 }

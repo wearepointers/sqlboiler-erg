@@ -10,7 +10,6 @@ require (
 	github.com/volatiletech/sqlboiler/v4 v4.16.1
 	github.com/volatiletech/strmangle v0.0.6
 	golang.org/x/mod v0.14.0
-	golang.org/x/text v0.14.0
 )
 
 require (

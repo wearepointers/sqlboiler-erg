@@ -39,106 +39,94 @@ func getSnakeCaseFromTag(field *ast.Field) string {
 	return ""
 }
 
-func getFieldType(fieldType ast.Expr) SQLBoilerTableColumnType {
-	var tp SQLBoilerTableColumnType
-
+func getTypeFromFieldType(fieldType ast.Expr) SQLBoilerType {
+	var tp SQLBoilerType
 	switch t := fieldType.(type) {
 	case *ast.Ident:
-		tp = SQLBoilerTableColumnType{
-			GoType:     t.Name,
-			GoTypeName: t.Name,
-			IsNullable: false,
+		tp = SQLBoilerType{
+			OriginalName:  t.Name,
+			FormattedName: t.Name,
 		}
-		break
 	case *ast.StarExpr:
-		ft := getFieldType(t.X)
+		ft := getTypeFromFieldType(t.X)
 
-		tp = SQLBoilerTableColumnType{
-			GoType:     ft.GoType,
-			GoTypeName: ft.GoTypeName,
-			IsNullable: true,
+		tp = SQLBoilerType{
+			OriginalName:  ft.OriginalName,
+			FormattedName: "*" + ft.OriginalName,
 		}
-		break
 	case *ast.SelectorExpr:
-		ft := getFieldType(t.X)
+		ft := getTypeFromFieldType(t.X)
 
-		tp = SQLBoilerTableColumnType{
-			GoType:     ft.GoType + "." + t.Sel.Name,
-			GoTypeName: ft.GoTypeName + "." + t.Sel.Name,
-			IsNullable: ft.IsNullable,
+		tp = SQLBoilerType{
+			OriginalName:  ft.OriginalName + "." + t.Sel.Name,
+			FormattedName: ft.OriginalName + "." + t.Sel.Name,
 		}
-		break
 	default:
 		fmt.Println("unknown", t)
 	}
 
-	tp.IsNullable = strings.Contains(tp.GoType, "null.") || tp.IsNullable
+	tp.FormattedName = sqlboilerTypeToType(tp.FormattedName)
 
-	if strings.Contains(tp.GoTypeName, ".") {
-		s := strings.Split(tp.GoTypeName, ".")
-		tp.GoTypeName = toSnakeCase(s[len(s)-1])
-	}
-
-	if tp.GoTypeName == "time" {
-		tp.GoTypeName = "string"
-	}
-
-	if tp.GoTypeName == "json" {
-		tp.GoTypeName = "json"
-		tp.GoType = "json"
-	}
-
-	if tp.IsNullable {
-		tp.GoTypeName = "*" + tp.GoTypeName
-	}
-
-	if strings.Contains(tp.GoTypeName, "_array") {
-		s := strings.Split(tp.GoTypeName, "_")
-		tp.GoTypeName = "[]" + s[0]
-		tp.GoType = tp.GoTypeName
-	}
-
-	tp.TypescriptType = convertGoTypeToTypescript(tp)
-
-	if _, ok := enumCacheMap[tp.GoType]; ok {
+	if _, ok := enumCacheMap[tp.OriginalName]; ok {
 		tp.IsEnum = true
 	}
 
 	return tp
 }
 
-func convertGoTypeToTypescript(t SQLBoilerTableColumnType) string {
-	goType := t.GoType
+var sqlboilerTypes = map[string]string{
+	"time":    "time.Time",
+	"json":    "any",
+	"decimal": "float64",
+}
 
-	if strings.HasPrefix(goType, "null.") {
-		goType = strings.TrimPrefix(goType, "null.")
-		goType = strings.ToLower(goType)
+func sqlboilerTypeToType(s string) string {
+	var formattedString = s
+
+	if strings.Contains(formattedString, "time") {
+		modelImports = append(modelImports, "time")
 	}
 
-	if goType == "string" {
-		return "string"
+	if strings.Contains(s, ".") {
+		splitted := strings.Split(s, ".")
+		formattedString = strings.ToLower(splitted[1])
 	}
 
-	if goType == "types.JSON" {
-		return "any"
-	}
-	if goType == "time.Time" || goType == "time" {
-		return "Date"
+	if val, ok := sqlboilerTypes[formattedString]; ok {
+		formattedString = val
 	}
 
-	goType = strings.ReplaceAll(goType, "bool", "boolean")
-	goType = strings.ReplaceAll(goType, "int", "number")
-	goType = strings.ReplaceAll(goType, "int64", "number")
-	goType = strings.ReplaceAll(goType, "int32", "number")
-	goType = strings.ReplaceAll(goType, "float", "number")
-
-	if strings.HasSuffix(goType, "Slice") {
-		return fmt.Sprintf("%v[]", strings.TrimSuffix(goType, "Slice"))
+	if strings.HasSuffix(formattedString, "array") {
+		formattedString = "[]" + strings.TrimSuffix(formattedString, "array")
 	}
 
-	if strings.HasPrefix(goType, "[]") {
-		return fmt.Sprintf("%v[]", strings.TrimPrefix(goType, "[]"))
+	if strings.HasPrefix(s, "null.") {
+		formattedString = "*" + formattedString
 	}
 
-	return goType
+	return formattedString
+}
+
+func convertGoTypeToTypescript(t SQLBoilerType) string {
+	var formattedString = t.FormattedName
+
+	formattedString = strings.TrimPrefix(formattedString, "*")
+
+	if strings.Contains(formattedString, "int") || strings.Contains(formattedString, "float") {
+		formattedString = "number"
+	}
+
+	formattedString = strings.ReplaceAll(formattedString, "bool", "boolean")
+	formattedString = strings.ReplaceAll(formattedString, "time.Time", "Date")
+
+	if strings.HasSuffix(formattedString, "Slice") {
+		return fmt.Sprintf("%v[]", strings.TrimSuffix(formattedString, "Slice"))
+	}
+
+	if strings.HasPrefix(formattedString, "[]") {
+		return fmt.Sprintf("%v[]", strings.TrimPrefix(formattedString, "[]"))
+	}
+
+	return formattedString
+
 }

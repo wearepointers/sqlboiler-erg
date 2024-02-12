@@ -12,13 +12,13 @@ type {{ .Name.PascalCase }} struct {
     *{{sqlboilerPkgName}}.{{ .Name.PascalCase }}
     {{- else}}
     {{- range $column := .Columns }}
-            {{ .Name.PascalCase }} {{ if eq .Type.GoTypeName "bool" }}*{{ end}}{{ .Type.GoTypeName }} `boil:"{{ .Name.SnakeCase }}" json:"{{.Name.SnakeCase}},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{  .Name.SnakeCase }}"`
+            {{ .Name.PascalCase }} {{ .Type.FormattedName }} `boil:"{{ .Name.SnakeCase }}" json:"{{.Name.SnakeCase}},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{  .Name.SnakeCase }}"`
     {{- end }}
     {{- end }}
 
 
     {{ range $relation := .Relations }}
-        {{ .Name.PascalCase }} {{ .Type.GoTypeName }} `boil:"{{ .Name.SnakeCase }}" json:"{{ .Name.SnakeCase }},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{ .Name.SnakeCase }}"`
+        {{ .Name.PascalCase }} {{ .Type.FormattedName }} `boil:"{{ .Name.SnakeCase }}" json:"{{ .Name.SnakeCase }},omitempty" toml:"{{ .Name.SnakeCase }}" yaml:"{{ .Name.SnakeCase }}"`
     {{- end }}
 
     CustomFields CustomFields `json:"custom_fields,omitempty"`
@@ -27,10 +27,6 @@ type {{ .Name.PascalCase }} struct {
 type {{.Name.PascalCase}}Slice []*{{.Name.PascalCase}}
 
 func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Name.PascalCase }}Slice, acf CustomFieldsSlice, exclude ...string) {{ .Name.PascalCase }}Slice {
-	if exclude == nil {
-		exclude = []string{}
-	}
-
 	s := make({{ .Name.PascalCase }}Slice, len(a))
 	for i, d := range a {
         var cf CustomFields
@@ -46,24 +42,12 @@ func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Nam
 }
 
 func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, customFields CustomFields, exclude ...string) *{{ .Name.PascalCase }} {
-    if exclude == nil {
-        exclude = []string{}
-    }
-    
     p := {{ .Name.PascalCase }}{
-        {{ if isInline}}
+        {{- if isInline}}
         {{.Name.PascalCase}}: a,
         {{- else}}
         {{- range $column := .Columns }}
-        {{- if .Type.IsNullable }}
-            {{- if eq .Type.GoType "null.Time" }}
-                {{ .Name.PascalCase }}: ConvertNullTime(a.{{ .Name.PascalCase }}),
-            {{- else}}
-                {{ .Name.PascalCase }}: null{{ convertToNullFuncType .Type.GoTypeName }}(a.{{ .Name.PascalCase }}),
-            {{- end}}
-        {{- else }}
-            {{ .Name.PascalCase }}: {{ convertToFuncType .Type "a." .Name.PascalCase }},
-        {{- end}}
+            {{ .Name.PascalCase }}: {{ convertSQLBoilerToErgType .Type "a" .Name.PascalCase }},
         {{- end}}
         {{- end}}
     }
@@ -83,3 +67,4 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
 
     return &p
 }
+

@@ -10,10 +10,9 @@ import (
 func toSnakeCase(s string) string {
 	var result []rune
 
-	s = strings.ReplaceAll(s, "ID", "id")
-	s = strings.ReplaceAll(s, "URL", "url")
-	s = strings.ReplaceAll(s, "JSON", "json")
-	s = strings.ReplaceAll(s, "API", "api")
+	for _, acronym := range acronyms {
+		s = strings.ReplaceAll(s, strings.ToUpper(acronym), acronym)
+	}
 
 	for i, r := range s {
 		if i > 0 && unicode.IsUpper(r) {
