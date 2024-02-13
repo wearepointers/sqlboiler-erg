@@ -75,10 +75,8 @@ func getTypeFromFieldType(fieldType ast.Expr) SQLBoilerType {
 }
 
 var sqlboilerTypes = map[string]string{
-	"time":    "time.Time",
-	"json":    "json",
-	"decimal": "decimal",
-	"bytes":   "[]byte",
+	"time":  "time.Time",
+	"bytes": "[]byte",
 }
 
 func sqlboilerTypeToType(s string) string {
@@ -129,19 +127,24 @@ func convertGoTypeToTypescript(t SQLBoilerType) string {
 
 	formattedString = strings.TrimPrefix(formattedString, "*")
 
-	if strings.Contains(formattedString, "int") || strings.Contains(formattedString, "float") {
+	if strings.Contains(formattedString, "int") || strings.Contains(formattedString, "float") || strings.Contains(formattedString, "decimal") {
 		formattedString = "number"
 	}
 
 	formattedString = strings.ReplaceAll(formattedString, "bool", "boolean")
 	formattedString = strings.ReplaceAll(formattedString, "time.Time", "Date")
+	formattedString = strings.ReplaceAll(formattedString, "byte", "any")
+	formattedString = strings.ReplaceAll(formattedString, "json", "any")
 
 	if strings.HasSuffix(formattedString, "Slice") {
 		return fmt.Sprintf("%v[]", strings.TrimSuffix(formattedString, "Slice"))
 	}
 
 	if strings.HasPrefix(formattedString, "[]") {
-		return fmt.Sprintf("%v[]", strings.TrimPrefix(formattedString, "[]"))
+		for strings.HasPrefix(formattedString, "[]") {
+			formattedString = strings.TrimPrefix(formattedString, "[]")
+			formattedString += "[]"
+		}
 	}
 
 	return formattedString
