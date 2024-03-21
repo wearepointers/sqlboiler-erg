@@ -52,14 +52,23 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		"singularize": func(s string) string {
 			return singularize(s)
 		},
-		"getTypescriptType": func(t SQLBoilerType, name string) string {
+		"getCustomFieldsName": func() SQLBoilerName {
+			return SQLBoilerName{
+				PascalCase: "CustomFields",
+				SnakeCase:  "custom_fields",
+				CamelCase:  "customFields",
+			}
+		},
+		"getStructTag": c.getStructTagFunc,
+		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName) string {
 			tsType := convertGoTypeToTypescript(t)
+			formattedName := c.getStructTagFunc(name)
 
 			if strings.HasPrefix(t.FormattedName, "*") {
-				return fmt.Sprintf("%v?: %v", name, tsType)
+				return fmt.Sprintf("%v?: %v", formattedName, tsType)
 			}
 
-			return fmt.Sprintf("%v: %v", name, tsType)
+			return fmt.Sprintf("%v: %v", formattedName, tsType)
 		},
 		"convertSQLBoilerToErgType": func(t SQLBoilerType, modelVar string, name string) string {
 			modelVarName := fmt.Sprintf("%v.%v", modelVar, name)
@@ -112,4 +121,26 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 	}
 
 	return content.String(), nil
+}
+
+func (c *Config) getStructTagFunc(name SQLBoilerName) string {
+	if c.sqlBoilerConfig.StructTagCasing != nil {
+		if *c.sqlBoilerConfig.StructTagCasing == "snake" {
+			return name.SnakeCase
+		}
+
+		if *c.sqlBoilerConfig.StructTagCasing == "camel" {
+			return name.CamelCase
+		}
+
+		if *c.sqlBoilerConfig.StructTagCasing == "title" {
+			fmt.Println("title casing not supported")
+		}
+
+		if *c.sqlBoilerConfig.StructTagCasing == "alias" {
+			fmt.Println("pascal casing not supported")
+		}
+	}
+
+	return name.SnakeCase
 }

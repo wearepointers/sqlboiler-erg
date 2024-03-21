@@ -12,13 +12,13 @@ export enum {{ .Name.PascalCase }} {
 {{- range $table := .Tables }}
 export interface {{ .Name.PascalCase }} {
 {{- range $column := .Columns }}
-  {{ getTypescriptType .Type .Name.SnakeCase}};
+  {{ getTypescriptType .Type .Name}};
 {{- end }}
 
 {{- range $relation := .Relations }}
-  {{ getTypescriptType .Type .Name.SnakeCase}};
+  {{ getTypescriptType .Type .Name}};
 {{- end }}
 
-  custom_fields?: Record<string, any>
+  {{getStructTag getCustomFieldsName}}?: Record<string, any>
 }
 {{- end }}

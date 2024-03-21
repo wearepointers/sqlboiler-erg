@@ -51,9 +51,10 @@ type ERGConfig struct {
 }
 
 type SQLBoilerConfig struct {
-	Output  string    `toml:"output"`
-	PkgName string    `toml:"pkgname"`
-	Erg     ERGConfig `toml:"erg"`
+	Output          string    `toml:"output"`
+	PkgName         string    `toml:"pkgname"`
+	StructTagCasing *string   `toml:"struct-tag-casing"`
+	Erg             ERGConfig `toml:"erg"`
 }
 
 func parseSQLBoilerConfig() (*SQLBoilerConfig, error) {
