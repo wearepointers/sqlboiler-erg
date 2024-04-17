@@ -52,9 +52,10 @@ type SQLBoilerTableRelation struct {
 }
 
 type SQLBoilerTableColumn struct {
-	Name       SQLBoilerName
-	Type       SQLBoilerType
-	IsRelation bool
+	IsPrimaryKey bool
+	Name         SQLBoilerName
+	Type         SQLBoilerType
+	IsRelation   bool
 }
 
 func (c *Config) getSQLBoilerTablesAndEnums() ([]SQLBoilerTable, []SQLBoilerTableColumnEnum, error) {
@@ -80,6 +81,9 @@ func (c *Config) getSQLBoilerTablesAndEnums() ([]SQLBoilerTable, []SQLBoilerTabl
 			Relations: relations,
 			Imports:   c.getERGDefaultImports(true),
 		}
+
+		// reset the model imports
+		modelImports = []string{}
 	}
 
 	return tables, enums, nil
@@ -272,6 +276,25 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 					}
 				}
 			}
+		case *ast.GenDecl:
+			if x.Tok == token.VAR {
+				for _, spec := range x.Specs {
+					valueSpec := spec.(*ast.ValueSpec)
+					name := valueSpec.Names[0].Name
+					if strings.HasSuffix(name, "PrimaryKeyColumns") {
+						arrayLit := valueSpec.Values[0].(*ast.CompositeLit)
+						for _, elt := range arrayLit.Elts {
+							if kv, ok := elt.(*ast.BasicLit); ok {
+								for i, column := range columns {
+									if column.Name.SnakeCase == strings.Trim(kv.Value, `"`) {
+										columns[i].IsPrimaryKey = true
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		return true
 	})
@@ -280,16 +303,16 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 	// 	return columns, relations, nil
 	// }
 
-	for i, column := range columns {
-		snakeCaseWithoutID := strings.Replace(column.Name.SnakeCase, "_id", "", -1)
+	// for i, column := range columns {
+	// 	snakeCaseWithoutID := strings.Replace(column.Name.SnakeCase, "_id", "", -1)
 
-		for _, relation := range relations {
-			if relation.Name.SnakeCase == snakeCaseWithoutID {
-				columns[i].IsRelation = true
-			}
-		}
+	// 	for _, relation := range relations {
+	// 		if relation.Name.SnakeCase == snakeCaseWithoutID {
+	// 			columns[i].IsRelation = true
+	// 		}
+	// 	}
 
-	}
+	// }
 
 	return columns, relations, nil
 }

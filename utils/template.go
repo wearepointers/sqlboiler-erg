@@ -52,6 +52,15 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		"singularize": func(s string) string {
 			return singularize(s)
 		},
+		"getPrimaryKey": func(prefix string, columns []SQLBoilerTableColumn) string {
+			var pk []string
+			for _, column := range columns {
+				if column.IsPrimaryKey {
+					pk = append(pk, fmt.Sprint(prefix, column.Name.PascalCase))
+				}
+			}
+			return strings.Join(pk, `+"_"+`)
+		},
 		"getCustomFieldsName": func() SQLBoilerName {
 			return SQLBoilerName{
 				PascalCase: "CustomFields",

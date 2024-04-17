@@ -7,6 +7,7 @@ import (
 {{- end }}
 )
 
+
 type {{ .Name.PascalCase }} struct {
     {{ if isInline }}
     *{{sqlboilerPkgName}}.{{ .Name.PascalCase }}
@@ -21,7 +22,7 @@ type {{ .Name.PascalCase }} struct {
         {{ .Name.PascalCase }} {{ .Type.FormattedName }} `boil:"{{ .Name.SnakeCase }}" json:"{{ getStructTag .Name }},omitempty" toml:"{{ getStructTag .Name }}" yaml:"{{ getStructTag .Name }}"`
     {{- end }}
 
-    CustomFields CustomFields `json:"{{ getStructTag getCustomFieldsName}},omitempty"`
+    CustomFields
 }
 
 type {{.Name.PascalCase}}Slice []*{{.Name.PascalCase}}
@@ -31,7 +32,7 @@ func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Nam
 	for i, d := range a {
         var cf CustomFields
         if acf != nil {
-            if value, ok := acf[d.ID]; ok {
+            if value, ok := acf[{{ getPrimaryKey "d." .Columns}}]; ok {
                 cf = value
             }
         }
@@ -53,13 +54,14 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
     }
 
     {{ $snakeCaseName := .Name.SnakeCase }}
-    if a.R != nil {
+    {{ $hasRelations := gt (len .Relations) 0}}
+    {{- if $hasRelations }} if a.R != nil { {{- end }}
         {{- range $relation := .Relations }}
             if a.R.{{ .Name.PascalCase }} != nil && doesNotContain(exclude,"{{ $snakeCaseName}}.{{ singularize .MainTableName.SnakeCase }}") {
                 p.{{ .Name.PascalCase }} = To{{if .IsMany }}{{ pluralize .MainTableName.PascalCase }}{{- else}}{{singularize .MainTableName.PascalCase }}{{- end}}(a.R.{{ .Name.PascalCase }}, nil, append(exclude, "{{ singularize .MainTableName.SnakeCase}}.{{ $snakeCaseName }}")...)
             }
         {{- end }}
-    }
+    {{- if $hasRelations }} } {{- end }}
     
     if customFields != nil {
         p.CustomFields = customFields
