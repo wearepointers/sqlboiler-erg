@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/expanse-agency/sqlboiler-erg/utils"
+	"github.com/wearepointers/sqlboiler-erg/utils"
 )
 
 func main() {

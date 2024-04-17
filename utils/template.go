@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/expanse-agency/sqlboiler-erg/templates"
+	"github.com/wearepointers/sqlboiler-erg/templates"
 )
 
 func (c *Config) writeTemplate(input, output string, data any) error {

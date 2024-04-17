@@ -1,4 +1,4 @@
-module github.com/expanse-agency/sqlboiler-erg
+module github.com/wearepointers/sqlboiler-erg
 
 go 1.21.3
 
