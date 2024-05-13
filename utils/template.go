@@ -68,10 +68,10 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 				CamelCase:  "customFields",
 			}
 		},
-		"getStructTag": c.getStructTagFunc,
+		"getStructTag": c.getStructTag,
 		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName) string {
 			tsType := convertGoTypeToTypescript(t)
-			formattedName := c.getStructTagFunc(name)
+			formattedName := c.getStructTag(name, "json")
 
 			if strings.HasPrefix(t.FormattedName, "*") {
 				return fmt.Sprintf("%v?: %v", formattedName, tsType)
@@ -132,24 +132,35 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 	return content.String(), nil
 }
 
-func (c *Config) getStructTagFunc(name SQLBoilerName) string {
-	if c.sqlBoilerConfig.StructTagCasing != nil {
-		if *c.sqlBoilerConfig.StructTagCasing == "snake" {
-			return name.SnakeCase
-		}
-
-		if *c.sqlBoilerConfig.StructTagCasing == "camel" {
-			return name.CamelCase
-		}
-
-		if *c.sqlBoilerConfig.StructTagCasing == "title" {
-			fmt.Println("title casing not supported")
-		}
-
-		if *c.sqlBoilerConfig.StructTagCasing == "alias" {
-			fmt.Println("pascal casing not supported")
-		}
+func (c *Config) getStructTag(name SQLBoilerName, fieldTag string) string {
+	switch fieldTag {
+	case "json":
+		return c.getNameCasing(name, c.sqlBoilerConfig.StructTagCases.Json)
+	case "yaml":
+		return c.getNameCasing(name, c.sqlBoilerConfig.StructTagCases.Yaml)
+	case "toml":
+		return c.getNameCasing(name, c.sqlBoilerConfig.StructTagCases.Toml)
+	case "boil":
+		return c.getNameCasing(name, c.sqlBoilerConfig.StructTagCases.Boil)
+	default:
+		fmt.Println("Unknown field tag. Using snake case.")
+		return c.getNameCasing(name, TagCaseSnake)
 	}
+}
 
-	return name.SnakeCase
+func (c *Config) getNameCasing(name SQLBoilerName, casing TagCase) string {
+	switch casing {
+	case TagCaseCamel:
+		return name.CamelCase
+	case TagCaseSnake:
+		return name.SnakeCase
+	case TagCaseTitle:
+		return name.PascalCase
+	case TagCaseAlias:
+		fmt.Println("Alias is not supported. Using snake case.")
+		return name.SnakeCase
+	default:
+		fmt.Println("Unknown casing. Using snake case.")
+		return name.SnakeCase
+	}
 }

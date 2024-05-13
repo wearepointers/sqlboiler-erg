@@ -13,16 +13,16 @@ type {{ .Name.PascalCase }} struct {
     *{{sqlboilerPkgName}}.{{ .Name.PascalCase }}
     {{- else}}
     {{- range $column := .Columns }}
-            {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{getStructTag .Name}},omitempty" toml:"{{ getStructTag .Name }}" yaml:"{{  getStructTag .Name }}"`
+            {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{getStructTag .Name "json"}},omitempty" toml:"{{ getStructTag .Name "toml" }}" yaml:"{{  getStructTag .Name "yaml"}}"`
     {{- end }}
     {{- end }}
 
 
     {{ range $relation := .Relations }}
-        {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{ getStructTag .Name }},omitempty" toml:"{{ getStructTag .Name }}" yaml:"{{ getStructTag .Name }}"`
+        {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{ getStructTag .Name "json" }},omitempty" toml:"{{ getStructTag .Name "toml" }}" yaml:"{{ getStructTag .Name "yaml"}}"`
     {{- end }}
 
-    CustomFields `json:"{{ getStructTag getCustomFieldsName}},omitempty" toml:"{{ getStructTag getCustomFieldsName }}" yaml:"{{ getStructTag getCustomFieldsName }}"`
+    CustomFields `json:"{{ getStructTag getCustomFieldsName "json"}},omitempty" toml:"{{ getStructTag getCustomFieldsName "toml" }}" yaml:"{{ getStructTag getCustomFieldsName "yaml" }}"`
 }
 
 type {{.Name.PascalCase}}Slice []*{{.Name.PascalCase}}

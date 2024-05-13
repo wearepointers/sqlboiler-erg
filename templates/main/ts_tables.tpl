@@ -19,6 +19,6 @@ export interface {{ .Name.PascalCase }} {
   {{ getTypescriptType .Type .Name}};
 {{- end }}
 
-  {{getStructTag getCustomFieldsName}}?: Record<string, any>
+  {{getStructTag getCustomFieldsName "json"}}?: Record<string, any>
 }
 {{- end }}

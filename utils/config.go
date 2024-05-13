@@ -50,17 +50,49 @@ type ERGConfig struct {
 	Blacklist []string `toml:"blacklist"`
 }
 
+type TagCase string
+
+const (
+	TagCaseCamel TagCase = "camel"
+	TagCaseSnake TagCase = "snake"
+	TagCaseTitle TagCase = "title"
+	TagCaseAlias TagCase = "alias"
+)
+
+type StructTagCases struct {
+	Json TagCase `toml:"json,omitempty" json:"json,omitempty"`
+	Yaml TagCase `toml:"yaml,omitempty" json:"yaml,omitempty"`
+	Toml TagCase `toml:"toml,omitempty" json:"toml,omitempty"`
+	Boil TagCase `toml:"boil,omitempty" json:"boil,omitempty"`
+}
+
 type SQLBoilerConfig struct {
-	Output          string    `toml:"output"`
-	PkgName         string    `toml:"pkgname"`
-	StructTagCasing *string   `toml:"struct-tag-casing"`
-	Erg             ERGConfig `toml:"erg"`
+	Output         string         `toml:"output"`
+	PkgName        string         `toml:"pkgname"`
+	StructTagCases StructTagCases `toml:"struct-tag-cases"`
+	Erg            ERGConfig      `toml:"erg"`
 }
 
 func parseSQLBoilerConfig() (*SQLBoilerConfig, error) {
 	var sqlBoilerConfig SQLBoilerConfig
 	if _, err := toml.DecodeFile(configFile, &sqlBoilerConfig); err != nil {
 		return nil, err
+	}
+
+	if sqlBoilerConfig.StructTagCases.Boil == "" {
+		sqlBoilerConfig.StructTagCases.Boil = TagCaseSnake
+	}
+
+	if sqlBoilerConfig.StructTagCases.Json == "" {
+		sqlBoilerConfig.StructTagCases.Json = TagCaseSnake
+	}
+
+	if sqlBoilerConfig.StructTagCases.Yaml == "" {
+		sqlBoilerConfig.StructTagCases.Yaml = TagCaseSnake
+	}
+
+	if sqlBoilerConfig.StructTagCases.Toml == "" {
+		sqlBoilerConfig.StructTagCases.Toml = TagCaseSnake
 	}
 
 	if sqlBoilerConfig.Erg.Output == "" {

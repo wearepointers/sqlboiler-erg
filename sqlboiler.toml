@@ -4,8 +4,10 @@ wipe     = true
 no-tests = true
 add-enum-types = true
 add-soft-deletes = true
-struct-tag-casing = "camel"
 blacklist = ["migrations", "schema_migrations"]
+
+[struct-tag-cases]
+json = "camel"
 
 [psql]
 dbname = "sqlboiler-erg"
