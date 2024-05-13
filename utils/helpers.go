@@ -16,7 +16,7 @@ func (c *Config) getSQLBoilerModelsFilePath(file string) string {
 
 func (c *Config) getERGDefaultImports(includeModelImports bool) []string {
 	var imports []string
-	if includeModelImports {
+	if includeModelImports && c.sqlBoilerConfig.Erg.Inline {
 		imports = append(imports, modelImports...)
 	}
 	imports = append(imports, c.getSQLBoilerModelsImportPath())
