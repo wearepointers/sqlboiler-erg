@@ -24,6 +24,21 @@ func toSnakeCase(s string) string {
 	return string(result)
 }
 
+func snakeCaseToCamelCase(s string) string {
+	var result []rune
+	words := strings.Split(s, "_")
+
+	for i, word := range words {
+		if i == 0 {
+			result = append(result, []rune(word)...)
+		} else {
+			result = append(result, []rune(titleize(word))...)
+		}
+	}
+
+	return string(result)
+}
+
 func toCamelCase(s string) string {
 	var result []rune
 

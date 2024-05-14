@@ -2,6 +2,9 @@
 
 If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you know that the relations are not exposed but place in a struct called `.R`. This works fine if you don't need expose the relations with json. This package is made, so you don't have to manually make custom functions to expose them as stated here: [https://github.com/volatiletech/sqlboiler/issues/272](https://github.com/volatiletech/sqlboiler/issues/272).
 
+## Todo
+- [ ] Remove different cases and just save the tag values instead
+
 ## Installation
 
 First you have to install the code generator binaries. Keep in mind that you still have to install `sqlboiler` separately.

@@ -268,7 +268,7 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 							Name: SQLBoilerName{
 								PascalCase: pascalCase,
 								SnakeCase:  snakeCase,
-								CamelCase:  toCamelCase(pascalCase),
+								CamelCase:  snakeCaseToCamelCase(snakeCase),
 							},
 							Type:       t,
 							IsRelation: false,
