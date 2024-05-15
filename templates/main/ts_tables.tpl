@@ -6,16 +6,17 @@ export enum {{ .Name.PascalCase }} {
   {{ .Label }} = {{ .Value }},
 {{- end }}
 }
-
 {{- end }}
 
 {{- range $table := .Tables }}
-export interface {{ .Name.PascalCase }} {
-{{- range $column := .Columns }}
+export interface {{ .Name.PascalCase }}Relations {
+{{- range $relation := .Relations }}
   {{ getTypescriptType .Type .Name}};
 {{- end }}
+}
 
-{{- range $relation := .Relations }}
+export interface {{ .Name.PascalCase }} extends {{ .Name.PascalCase }}Relations {
+{{- range $column := .Columns }}
   {{ getTypescriptType .Type .Name}};
 {{- end }}
 
