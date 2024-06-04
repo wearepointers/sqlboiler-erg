@@ -102,6 +102,10 @@ func sqlboilerTypeToType(s string) string {
 		}
 	}
 
+	if strings.HasPrefix(formattedString, "decimal.") {
+		formattedString = strings.ToLower(strings.TrimPrefix(formattedString, "decimal."))
+	}
+
 	if strings.Contains(formattedString, "array") {
 		isSlice = true
 		formattedString = strings.TrimSuffix(formattedString, "array")

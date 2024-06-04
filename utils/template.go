@@ -86,7 +86,7 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 				return fmt.Sprintf("%v(%v)", t.OriginalName, modelVarName)
 			}
 
-			if strings.HasPrefix(t.OriginalName, "null.") || strings.HasPrefix(t.OriginalName, "types.") {
+			if strings.HasPrefix(t.OriginalName, "null.") || strings.HasPrefix(t.OriginalName, "types.") || strings.HasPrefix(t.OriginalName, "decimal.") {
 				fromName := strings.ReplaceAll(t.OriginalName, ".", "Dot")
 
 				toNameS := strings.Split(t.OriginalName, ".")

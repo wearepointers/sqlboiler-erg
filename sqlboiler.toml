@@ -9,6 +9,7 @@ blacklist = ["migrations", "schema_migrations"]
 [struct-tag-cases]
 json = "camel"
 
+
 [psql]
 dbname = "sqlboiler-erg"
 host   = "localhost"
@@ -24,3 +25,4 @@ pkgname = "erg"
 wipe    = true
 inline = false
 blacklist = ["*.password", "*.token", "*.*hash", "schema_migrations"]
+

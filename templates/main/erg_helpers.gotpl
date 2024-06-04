@@ -9,6 +9,7 @@ import (
 
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/types"
+	sd "github.com/shopspring/decimal"
 )
 
 type CustomFields map[string]interface{}
@@ -129,4 +130,8 @@ func typesDotNullDecimalToNullDecimal(t types.NullDecimal) *decimal {
 	f, _ := t.Float64()
 	d := decimal(f)
 	return &d
+}
+
+func decimalDotDecimalToDecimal(d sd.Decimal) decimal {
+	return decimal(d.InexactFloat64())
 }
