@@ -352,8 +352,28 @@ func (c *Config) writeSQLBoilerTablesToERGFile(tables []SQLBoilerTable) error {
 	})
 }
 
-func (c *Config) writeERGHelperFunctionsToFile() error {
-	return c.writeTemplate("main/erg_helpers.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_helpers.go"), nil)
+type ergHelper struct {
+	Imports                []string
+	UseDifferentDecimalPkg bool
+}
+
+func (c *Config) writeERGHelperFunctionsToFile(tables []SQLBoilerTable) error {
+	var imports []string
+	var useDifferentDecimalPkg bool
+
+	for _, table := range tables {
+		for _, column := range table.Columns {
+			if column.Type.OriginalName == "decimal.Decimal" {
+				imports = append(imports, `sd "github.com/shopspring/decimal"`)
+				useDifferentDecimalPkg = true
+			}
+		}
+	}
+
+	return c.writeTemplate("main/erg_helpers.gotpl", path.Join(c.sqlBoilerConfig.Erg.Output, "erg_helpers.go"), ergHelper{
+		Imports:                imports,
+		UseDifferentDecimalPkg: useDifferentDecimalPkg,
+	})
 }
 
 type tsModel struct {

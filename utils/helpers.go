@@ -73,7 +73,7 @@ func (c *Config) ConvertSQLBoilerModelsToApiModels() error {
 		return err
 	}
 
-	if err := c.writeERGHelperFunctionsToFile(); err != nil {
+	if err := c.writeERGHelperFunctionsToFile(tables); err != nil {
 		return err
 	}
 
