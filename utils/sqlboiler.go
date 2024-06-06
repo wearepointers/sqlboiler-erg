@@ -31,6 +31,7 @@ type SQLBoilerType struct {
 	OriginalName  string
 	FormattedName string
 	IsEnum        bool
+	IsNullable    bool
 }
 
 ///////////////////////////////////////////////////////////////

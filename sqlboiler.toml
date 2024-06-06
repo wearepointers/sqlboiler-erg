@@ -9,6 +9,15 @@ blacklist = ["migrations", "schema_migrations"]
 [struct-tag-cases]
 json = "camel"
 
+[[types]]
+  [types.match]
+    type = "types.Decimal"
+
+  [types.replace]
+    type = "decimal.Decimal"
+
+  [types.imports]
+    third_party = ['"github.com/shopspring/decimal"']
 
 [psql]
 dbname = "sqlboiler-erg"

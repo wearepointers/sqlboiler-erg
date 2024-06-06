@@ -13,7 +13,7 @@ type {{ .Name.PascalCase }} struct {
     *{{sqlboilerPkgName}}.{{ .Name.PascalCase }}
     {{- else}}
     {{- range $column := .Columns }}
-            {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{getStructTag .Name "json"}},omitempty" toml:"{{ getStructTag .Name "toml" }}" yaml:"{{  getStructTag .Name "yaml"}}"`
+            {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{getStructTag .Name "json"}}{{shouldOmit .Type ",omitempty"}}" toml:"{{ getStructTag .Name "toml" }}" yaml:"{{  getStructTag .Name "yaml"}}"`
     {{- end }}
     {{- end }}
 

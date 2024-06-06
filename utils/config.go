@@ -2,6 +2,7 @@ package utils
 
 import (
 	"flag"
+	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -24,11 +25,12 @@ type Config struct {
 }
 
 func ParseConfig() (*Config, error) {
-
 	sqlBoilerConfig, err := parseSQLBoilerConfig()
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("SQLBoilerConfig", sqlBoilerConfig.Types)
 
 	modFile, err := parseModFile()
 	if err != nil {
@@ -70,7 +72,22 @@ type SQLBoilerConfig struct {
 	Output         string         `toml:"output"`
 	PkgName        string         `toml:"pkgname"`
 	StructTagCases StructTagCases `toml:"struct-tag-cases"`
+	Types          TypesInfo      `toml:"types"`
 	Erg            ERGConfig      `toml:"erg"`
+}
+
+type TypesInfo struct {
+	Match   TypeInfo   `toml:"match"`
+	Replace TypeInfo   `toml:"replace"`
+	Imports ImportInfo `toml:"imports"`
+}
+
+type TypeInfo struct {
+	Type string `toml:"type"`
+}
+
+type ImportInfo struct {
+	ThirdParty []string `toml:"third_party"`
 }
 
 func parseSQLBoilerConfig() (*SQLBoilerConfig, error) {

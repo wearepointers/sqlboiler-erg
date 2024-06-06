@@ -65,7 +65,7 @@ func getTypeFromFieldType(fieldType ast.Expr) SQLBoilerType {
 		fmt.Println("unknown", t)
 	}
 
-	tp.FormattedName = sqlboilerTypeToType(tp.FormattedName)
+	tp.FormattedName, tp.IsNullable = sqlboilerTypeToType(tp.FormattedName)
 
 	if _, ok := enumCacheMap[tp.OriginalName]; ok {
 		tp.IsEnum = true
@@ -79,7 +79,7 @@ var sqlboilerTypes = map[string]string{
 	"bytes": "[]byte",
 }
 
-func sqlboilerTypeToType(s string) string {
+func sqlboilerTypeToType(s string) (string, bool) {
 	var formattedString = s
 	var isNullable = false
 	var isSlice = false
@@ -123,7 +123,7 @@ func sqlboilerTypeToType(s string) string {
 		formattedString = "[]" + formattedString
 	}
 
-	return formattedString
+	return formattedString, isNullable
 }
 
 func convertGoTypeToTypescript(t SQLBoilerType) string {

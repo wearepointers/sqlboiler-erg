@@ -52,6 +52,12 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		"singularize": func(s string) string {
 			return singularize(s)
 		},
+		"shouldOmit": func(tp SQLBoilerType, s string) string {
+			if tp.IsNullable {
+				return s
+			}
+			return ""
+		},
 		"getPrimaryKey": func(prefix string, columns []SQLBoilerTableColumn) string {
 			var pk []string
 			for _, column := range columns {
