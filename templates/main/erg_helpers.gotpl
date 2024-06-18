@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	jsonT "encoding/json"
-
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/types"
 	
@@ -18,7 +16,7 @@ import (
 type CustomFields map[string]interface{}
 type CustomFieldsSlice map[string]CustomFields
 
-type json jsonT.RawMessage
+type json any
 type decimal float64
 
 func contains(a []string, s string) bool {
