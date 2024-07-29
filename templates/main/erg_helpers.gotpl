@@ -59,7 +59,7 @@ func nullDotJSONToJSONPtr(n null.JSON) *json {
 		return nil
 	}
 
-	j := json(n.JSON)
+	j := json(n)
 	return &j
 }
 
