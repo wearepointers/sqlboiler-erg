@@ -168,6 +168,14 @@ func convertGoTypeToTypescript(t SQLBoilerType) string {
 		}
 	}
 
+	if t.IsEnum {
+		formattedString = strings.TrimPrefix(formattedString, "dm.")
+
+		if t.IsNullable {
+			formattedString = strings.TrimPrefix(formattedString, "Null")
+		}
+	}
+
 	return formattedString
 
 }
