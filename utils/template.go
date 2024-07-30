@@ -79,7 +79,7 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 			tsType := convertGoTypeToTypescript(t)
 			formattedName := c.getStructTag(name, "json")
 
-			if strings.HasPrefix(t.FormattedName, "*") {
+			if t.IsNullable {
 				return fmt.Sprintf("%v?: %v", formattedName, tsType)
 			}
 
@@ -87,10 +87,6 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		},
 		"convertSQLBoilerToErgType": func(t SQLBoilerType, modelVar string, name string) string {
 			modelVarName := fmt.Sprintf("%v.%v", modelVar, name)
-
-			if t.IsEnum {
-				return fmt.Sprintf("%v(%v)", t.OriginalName, modelVarName)
-			}
 
 			if strings.HasPrefix(t.OriginalName, "null.") || strings.HasPrefix(t.OriginalName, "types.") || strings.HasPrefix(t.OriginalName, "decimal.") {
 				fromName := strings.ReplaceAll(t.OriginalName, ".", "Dot")

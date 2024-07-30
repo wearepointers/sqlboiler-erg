@@ -71,6 +71,18 @@ func getTypeFromFieldType(fieldType ast.Expr) SQLBoilerType {
 		tp.IsEnum = true
 	}
 
+	if _, ok := enumCacheMap[strings.TrimPrefix(tp.FormattedName, "*")]; ok {
+		tp.IsEnum = true
+
+		if tp.IsNullable {
+			tp.FormattedName = "dm.Null" + strings.TrimPrefix(tp.FormattedName, "*")
+		}
+
+		if !tp.IsNullable {
+			tp.FormattedName = "dm." + tp.FormattedName
+		}
+	}
+
 	return tp
 }
 
@@ -112,7 +124,8 @@ func sqlboilerTypeToType(s string) (string, bool) {
 	}
 
 	if strings.HasPrefix(formattedString, "Null") {
-		formattedString = "dm." + formattedString
+		isNullable = true
+		formattedString = strings.TrimPrefix(formattedString, "Null")
 	}
 
 	if val, ok := sqlboilerTypes[formattedString]; ok {

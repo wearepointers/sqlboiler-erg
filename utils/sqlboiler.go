@@ -115,6 +115,7 @@ func (c *Config) readSQLBoilerEnumsFromFile() ([]SQLBoilerTableColumnEnum, error
 	ast.Inspect(f, func(n ast.Node) bool {
 		if typeSpec, ok := n.(*ast.TypeSpec); ok {
 			currentType = typeSpec.Name.Name
+
 			if basicLit, ok := typeSpec.Type.(*ast.Ident); ok {
 				enumCacheMap[currentType] = SQLBoilerTableColumnEnum{
 					Type: SQLBoilerType{

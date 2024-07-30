@@ -77,10 +77,6 @@ func (c *Config) ConvertSQLBoilerModelsToApiModels() error {
 		return err
 	}
 
-	if err := c.writeSQLBoilerEnumsToERGFiles(enums); err != nil {
-		return err
-	}
-
 	if err := c.writeSQLBoilerTablesToERGFiles(tables); err != nil {
 		return err
 	}
