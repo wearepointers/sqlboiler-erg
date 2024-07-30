@@ -111,6 +111,10 @@ func sqlboilerTypeToType(s string) (string, bool) {
 		formattedString = strings.TrimSuffix(formattedString, "array")
 	}
 
+	if strings.HasPrefix(formattedString, "Null") {
+		formattedString = "dm." + formattedString
+	}
+
 	if val, ok := sqlboilerTypes[formattedString]; ok {
 		formattedString = val
 	}

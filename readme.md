@@ -5,6 +5,9 @@ If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you k
 ## Todo
 - [ ] Remove different cases and just save the tag values instead
 
+## Run
+- SQLBoiler: `sqlboiler psql -c sqlboiler.toml`
+
 ## Installation
 
 First you have to install the code generator binaries. Keep in mind that you still have to install `sqlboiler` separately.

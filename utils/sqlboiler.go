@@ -261,6 +261,8 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 						pascalCase := field.Names[0].Name
 						snakeCase := getSnakeCaseFromTag(field) // Can be named differently than the field name
 
+						fmt.Println("type", t)
+
 						if c.isBlackListed(table.Name.SnakeCase, snakeCase) {
 							continue
 						}
