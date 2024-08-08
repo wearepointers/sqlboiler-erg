@@ -128,6 +128,11 @@ func sqlboilerTypeToType(s string) (string, bool) {
 		formattedString = strings.TrimPrefix(formattedString, "Null")
 	}
 
+	if strings.HasPrefix(formattedString, "*") {
+		isNullable = true
+		formattedString = strings.TrimPrefix(formattedString, "*")
+	}
+
 	if val, ok := sqlboilerTypes[formattedString]; ok {
 		formattedString = val
 	}

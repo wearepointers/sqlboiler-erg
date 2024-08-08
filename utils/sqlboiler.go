@@ -233,7 +233,6 @@ func (c *Config) readSQLBoilerColumnsAndRelationsFromFile(table SQLBoilerTable) 
 					pascalCase := field.Names[0].Name
 
 					t := getTypeFromFieldType(field.Type)
-					t.IsNullable = true
 
 					mainTableNamePascalCase := strings.TrimSuffix(t.OriginalName, "Slice")
 					if c.isBlackListed(toSnakeCase(mainTableNamePascalCase), "") {
