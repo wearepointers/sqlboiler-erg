@@ -3,7 +3,7 @@
 {{- range $e := .Enums }}
 export enum {{ .Name.PascalCase }} {
 {{- range $value := .Values }}
-    {{ .Label }} = {{ .Value }},
+    {{ .Label }} = {{ doubleQuotesToSingleQuote .Value }},
 {{- end }}
 }
 {{- end }}

@@ -67,6 +67,9 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 			}
 			return strings.Join(pk, `+"_"+`)
 		},
+		"doubleQuotesToSingleQuote": func(s string) string {
+			return strings.ReplaceAll(s, `"`, `'`)
+		},
 		"getStructTag": c.getStructTag,
 		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName) string {
 			tsType := convertGoTypeToTypescript(t)
