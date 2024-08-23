@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"path"
+	"sort"
 	"strings"
 )
 
@@ -159,7 +160,14 @@ func (c *Config) readSQLBoilerEnumsFromFile() ([]SQLBoilerTableColumnEnum, error
 		enums = append(enums, enum)
 	}
 
-	return enums, err
+	var sortedEnums = make([]SQLBoilerTableColumnEnum, len(enums))
+	copy(sortedEnums, enums)
+
+	sort.Slice(sortedEnums, func(i, j int) bool {
+		return sortedEnums[i].Name.PascalCase < sortedEnums[j].Name.PascalCase
+	})
+
+	return sortedEnums, err
 }
 
 ///////////////////////////////////////////////////////////////
