@@ -3,7 +3,7 @@
 {{- range $e := .Enums }}
 export enum {{ .Name.PascalCase }} {
 {{- range $value := .Values }}
-  {{ .Label }} = {{ .Value }},
+    {{ .Label }} = {{ .Value }},
 {{- end }}
 }
 {{- end }}
@@ -11,13 +11,13 @@ export enum {{ .Name.PascalCase }} {
 {{- range $table := .Tables }}
 export interface {{ .Name.PascalCase }}Relations {
 {{- range $relation := .Relations }}
-  {{ getTypescriptType .Type .Name}};
+    {{ getTypescriptType .Type .Name}};
 {{- end }}
 }
 
 export interface {{ .Name.PascalCase }} extends {{ .Name.PascalCase }}Relations {
 {{- range $column := .Columns }}
-  {{ getTypescriptType .Type .Name}};
+    {{ getTypescriptType .Type .Name}};
 {{- end }}
 }
 {{- end }}
