@@ -21,28 +21,19 @@ type {{ .Name.PascalCase }} struct {
     {{ range $relation := .Relations }}
         {{ .Name.PascalCase }} {{ .Type.FormattedName }} `json:"{{ getStructTag .Name "json" }},omitempty" toml:"{{ getStructTag .Name "toml" }}" yaml:"{{ getStructTag .Name "yaml"}}"`
     {{- end }}
-
-    CustomFields `json:"{{ getStructTag getCustomFieldsName "json"}},omitempty" toml:"{{ getStructTag getCustomFieldsName "toml" }}" yaml:"{{ getStructTag getCustomFieldsName "yaml" }}"`
 }
 
 type {{.Name.PascalCase}}Slice []*{{.Name.PascalCase}}
 
-func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Name.PascalCase }}Slice, acf CustomFieldsSlice, exclude ...string) {{ .Name.PascalCase }}Slice {
+func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Name.PascalCase }}Slice, exclude ...string) {{ .Name.PascalCase }}Slice {
 	s := make({{ .Name.PascalCase }}Slice, len(a))
 	for i, d := range a {
-        var cf CustomFields
-        if acf != nil {
-            if value, ok := acf[{{ getPrimaryKey "d." .Columns}}]; ok {
-                cf = value
-            }
-        }
-
-		s[i] = To{{singularize .Name.PascalCase}}(d, cf, exclude...)
+		s[i] = To{{singularize .Name.PascalCase}}(d, exclude...)
 	}
 	return s
 }
 
-func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, customFields CustomFields, exclude ...string) *{{ .Name.PascalCase }} {
+func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, exclude ...string) *{{ .Name.PascalCase }} {
     p := {{ .Name.PascalCase }}{
         {{- if isInline}}
         {{.Name.PascalCase}}: a,
@@ -58,14 +49,10 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
     {{- if $hasRelations }} if a.R != nil { {{- end }}
         {{- range $relation := .Relations }}
             if a.R.{{ .Name.PascalCase }} != nil && doesNotContain(exclude,"{{ $snakeCaseName}}.{{ singularize .MainTableName.SnakeCase }}") {
-                p.{{ .Name.PascalCase }} = To{{if .IsMany }}{{ pluralize .MainTableName.PascalCase }}{{- else}}{{singularize .MainTableName.PascalCase }}{{- end}}(a.R.{{ .Name.PascalCase }}, nil, append(exclude, "{{ singularize .MainTableName.SnakeCase}}.{{ $snakeCaseName }}")...)
+                p.{{ .Name.PascalCase }} = To{{if .IsMany }}{{ pluralize .MainTableName.PascalCase }}{{- else}}{{singularize .MainTableName.PascalCase }}{{- end}}(a.R.{{ .Name.PascalCase }}, append(exclude, "{{ singularize .MainTableName.SnakeCase}}.{{ $snakeCaseName }}")...)
             }
         {{- end }}
     {{- if $hasRelations }} } {{- end }}
-    
-    if customFields != nil {
-        p.CustomFields = customFields
-    }
 
     return &p
 }

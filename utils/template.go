@@ -67,13 +67,6 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 			}
 			return strings.Join(pk, `+"_"+`)
 		},
-		"getCustomFieldsName": func() SQLBoilerName {
-			return SQLBoilerName{
-				PascalCase: "CustomFields",
-				SnakeCase:  "custom_fields",
-				CamelCase:  "customFields",
-			}
-		},
 		"getStructTag": c.getStructTag,
 		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName) string {
 			tsType := convertGoTypeToTypescript(t)

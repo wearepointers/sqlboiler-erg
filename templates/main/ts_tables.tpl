@@ -19,7 +19,5 @@ export interface {{ .Name.PascalCase }} extends {{ .Name.PascalCase }}Relations 
 {{- range $column := .Columns }}
   {{ getTypescriptType .Type .Name}};
 {{- end }}
-
-  {{getStructTag getCustomFieldsName "json"}}?: Record<string, any>
 }
 {{- end }}

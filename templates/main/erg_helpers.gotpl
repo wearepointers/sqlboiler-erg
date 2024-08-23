@@ -13,9 +13,6 @@ import (
 	{{- end }}
 )
 
-type CustomFields map[string]interface{}
-type CustomFieldsSlice map[string]CustomFields
-
 type json any
 type decimal float64
 
