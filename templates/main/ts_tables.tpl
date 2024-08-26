@@ -11,13 +11,13 @@ export enum {{ .Name.PascalCase }} {
 {{- range $table := .Tables }}
 export interface {{ .Name.PascalCase }}Relations {
 {{- range $relation := .Relations }}
-    {{ getTypescriptType .Type .Name}};
+    {{ getTypescriptType .Type .Name true}};
 {{- end }}
 }
 
 export interface {{ .Name.PascalCase }} extends {{ .Name.PascalCase }}Relations {
 {{- range $column := .Columns }}
-    {{ getTypescriptType .Type .Name}};
+    {{ getTypescriptType .Type .Name false}};
 {{- end }}
 }
 {{- end }}

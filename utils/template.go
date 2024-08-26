@@ -71,14 +71,13 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 			return strings.ReplaceAll(s, `"`, `'`)
 		},
 		"getStructTag": c.getStructTag,
-		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName) string {
+		"getTypescriptType": func(t SQLBoilerType, name SQLBoilerName, isRelations bool) string {
 			tsType := convertGoTypeToTypescript(t)
 			formattedName := c.getStructTag(name, "json")
 
-			if t.IsNullable {
+			if t.IsNullable || isRelations {
 				return fmt.Sprintf("%v?: %v", formattedName, tsType)
 			}
-
 			return fmt.Sprintf("%v: %v", formattedName, tsType)
 		},
 		"convertSQLBoilerToErgType": func(t SQLBoilerType, modelVar string, name string) string {
