@@ -6,18 +6,19 @@ export enum {{ .Name.PascalCase }} {
     {{ .Label }} = {{ doubleQuotesToSingleQuote .Value }},
 {{- end }}
 }
-{{- end }}
+{{ end }}
 
 {{- range $table := .Tables }}
+{{- if gt (len $table.Relations) 0 }}
 export interface {{ .Name.PascalCase }}Relations {
 {{- range $relation := .Relations }}
-    {{ getTypescriptType .Type .Name true}};
+    {{ getTypescriptType .Type .Name true }};
 {{- end }}
 }
-
-export interface {{ .Name.PascalCase }} extends {{ .Name.PascalCase }}Relations {
+{{ end }}
+export interface {{ .Name.PascalCase }}{{ if gt (len $table.Relations) 0 }} extends {{ .Name.PascalCase }}Relations{{ end }} {
 {{- range $column := .Columns }}
-    {{ getTypescriptType .Type .Name false}};
+    {{ getTypescriptType .Type .Name false }};
 {{- end }}
 }
-{{- end }}
+{{ end }}
