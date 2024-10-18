@@ -10,8 +10,8 @@ blacklist = ["migrations", "schema_migrations"]
 json = "camel"
 
 [psql]
-dbname = "landingpages"
-host   = "localhost"
+dbname = "sqlboiler-erg"
+host   = "postgres"
 port   = 5432
 user   = "root"
 pass   = "root"

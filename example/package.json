@@ -1,0 +1,19 @@
+{
+  "name": "@launchyoursocials/backend",
+  "private": true,
+  "scripts": {
+    "tidy": "pnpm dc:run go mod tidy",
+    "setup": "pnpm dc:build && pnpm run tidy",
+    "dev": "pnpm dc:up",
+    "db:migrate": "pnpm dc:run go run ./cmd/cli/migrate/main.go && pnpm db:generate",
+    "db:generate": "pnpm dc:run sqlboiler psql -c sqlboiler.toml && pnpm dc:run go run ./cmd/cli/generate/main.go",
+    "dc:build": "docker compose build",
+    "dc:run": "docker compose run --rm --no-deps rest-api",
+    "dc:up": "docker compose up --attach rest-api --no-attach postgres --remove-orphans",
+    "dc:down": "docker compose down",
+    "dc:clean": "docker image prune"
+  },
+  "dependencies": {
+    "prettier": "^3.3.3"
+  }
+}

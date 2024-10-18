@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/format"
 	"os"
+	"os/exec"
 	"strings"
 	"text/template"
 
@@ -17,9 +18,19 @@ func (c *Config) writeTemplate(input, output string, data any) error {
 		return err
 	}
 
-	template, err := c.parseTemplate(string(content), data, strings.HasSuffix(output, ".go"))
+	template, err := c.parseTemplate(string(content), data)
 	if err != nil {
 		return err
+	}
+
+	if strings.HasSuffix(output, ".go") {
+		contentBytes := []byte(template)
+		formattedContent, err := format.Source(contentBytes)
+		if err != nil {
+			return fmt.Errorf("formatting: %v", err)
+		}
+
+		template = string(formattedContent)
 	}
 
 	hF, err := os.Create(output)
@@ -32,10 +43,14 @@ func (c *Config) writeTemplate(input, output string, data any) error {
 		return err
 	}
 
+	if strings.HasSuffix(output, ".ts") {
+		c.silentlyFormatWithPrettier(output)
+	}
+
 	return nil
 }
 
-func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (string, error) {
+func (c *Config) parseTemplate(tmplte string, data any) (string, error) {
 	tpl, err := template.New("").Funcs(template.FuncMap{
 		"sqlboilerPkgName": func() string {
 			return c.sqlBoilerConfig.PkgName
@@ -116,16 +131,6 @@ func (c *Config) parseTemplate(tmplte string, data any, shouldFormat bool) (stri
 		return "", fmt.Errorf("execute: %v", err)
 	}
 
-	if shouldFormat {
-		contentBytes := content.Bytes()
-		formattedContent, err := format.Source(contentBytes)
-		if err != nil {
-			return string(contentBytes), fmt.Errorf("formatting: %v", err)
-		}
-
-		return string(formattedContent), nil
-	}
-
 	return content.String(), nil
 }
 
@@ -159,5 +164,14 @@ func (c *Config) getNameCasing(name SQLBoilerName, casing TagCase) string {
 	default:
 		fmt.Println("Unknown casing. Using snake case.")
 		return name.SnakeCase
+	}
+}
+
+func (c *Config) silentlyFormatWithPrettier(filePath string) {
+	cmd := exec.Command("prettier", "--write", filePath)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Failed to run prettier. If you want to use prettier, please install it globally.")
 	}
 }

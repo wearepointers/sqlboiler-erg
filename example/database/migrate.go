@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func migrater() error {
+func Migrater() error {
 	dir, err := os.Getwd()
 	if err != nil {
 		return err

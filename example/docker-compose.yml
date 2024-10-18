@@ -1,5 +1,21 @@
 version: "3.9"
 services:
+  rest-api:
+    restart: no
+    command: reflex -s -- go run cmd/server/main.go
+    build:
+      context: ..
+      dockerfile: ./example/Dockerfile
+      target: development
+    image: rest-api
+    ports:
+      - "${PORT}:8080"
+    volumes:
+      - ..:/sqlboiler-erg
+      - .:/sqlboiler-erg/example
+        # mount cached go pkg downloads
+      - go-pkg:/go/pkg
+
   postgres:
     container_name: sqlboiler-postgres
     image: postgres:latest
@@ -18,3 +34,6 @@ volumes:
   # postgresql: declare a named volume to persist DB data
   pgvolume:
     driver: local
+
+  # go: go mod cached downloads
+  go-pkg:
