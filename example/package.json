@@ -1,5 +1,5 @@
 {
-  "name": "@launchyoursocials/backend",
+  "name": "sqlboiler-erg",
   "private": true,
   "scripts": {
     "tidy": "pnpm dc:run go mod tidy",
