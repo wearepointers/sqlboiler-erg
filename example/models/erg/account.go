@@ -3,16 +3,32 @@ package erg
 
 import (
 	"github.com/wearepointers/sqlboiler-erg/example/models/dm"
-	"time"
+	"sync"
 )
 
+type accountBeforeHook func(*dm.Account)
+type accountAfterHook func(*Account)
+
+var accountBeforeMu sync.Mutex
+var accountBeforeHooks []accountBeforeHook
+
+var accountAfterMu sync.Mutex
+var accountAfterHooks []accountAfterHook
+
+func AddAccountBeforeHook(hook accountBeforeHook) {
+	accountBeforeMu.Lock()
+	accountBeforeHooks = append(accountBeforeHooks, hook)
+	accountBeforeMu.Unlock()
+}
+
+func AddAccountAfterHook(hook accountAfterHook) {
+	accountAfterMu.Lock()
+	accountAfterHooks = append(accountAfterHooks, hook)
+	accountAfterMu.Unlock()
+}
+
 type Account struct {
-	ID        string     `json:"id" toml:"id" yaml:"id"`
-	Email     string     `json:"email" toml:"email" yaml:"email"`
-	CreatedAt time.Time  `json:"createdAt" toml:"created_at" yaml:"created_at"`
-	CreatedBy string     `json:"createdBy" toml:"created_by" yaml:"created_by"`
-	UpdatedAt time.Time  `json:"updatedAt" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt *time.Time `json:"deletedAt,omitempty" toml:"deleted_at" yaml:"deleted_at"`
+	*dm.Account
 
 	CreatedByCauser *Causer     `json:"createdByCauser,omitempty" toml:"created_by_causer" yaml:"created_by_causer"`
 	Causers         CauserSlice `json:"causers,omitempty" toml:"causers" yaml:"causers"`
@@ -29,13 +45,16 @@ func ToAccounts(a dm.AccountSlice, exclude ...string) AccountSlice {
 }
 
 func ToAccount(a *dm.Account, exclude ...string) *Account {
+	for _, doBeforeHook := range accountBeforeHooks {
+		doBeforeHook(a)
+	}
+
 	p := Account{
-		ID:        a.ID,
-		Email:     a.Email,
-		CreatedAt: a.CreatedAt,
-		CreatedBy: a.CreatedBy,
-		UpdatedAt: a.UpdatedAt,
-		DeletedAt: nullDotTimeToTimePtr(a.DeletedAt),
+		Account: a,
+	}
+
+	for _, doAfterHook := range accountAfterHooks {
+		doAfterHook(&p)
 	}
 
 	if a.R != nil {

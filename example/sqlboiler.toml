@@ -22,6 +22,6 @@ output = "models/erg"
 output-ts = "models/models.ts"
 pkgname = "erg"
 wipe    = true
-inline = false
+inline = true
 blacklist = ["*.password", "*.token", "*.*hash", "schema_migrations"]
 

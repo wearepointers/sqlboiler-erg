@@ -3,14 +3,32 @@ package erg
 
 import (
 	"github.com/wearepointers/sqlboiler-erg/example/models/dm"
-	"time"
+	"sync"
 )
 
+type systemAccountBeforeHook func(*dm.SystemAccount)
+type systemAccountAfterHook func(*SystemAccount)
+
+var systemAccountBeforeMu sync.Mutex
+var systemAccountBeforeHooks []systemAccountBeforeHook
+
+var systemAccountAfterMu sync.Mutex
+var systemAccountAfterHooks []systemAccountAfterHook
+
+func AddSystemAccountBeforeHook(hook systemAccountBeforeHook) {
+	systemAccountBeforeMu.Lock()
+	systemAccountBeforeHooks = append(systemAccountBeforeHooks, hook)
+	systemAccountBeforeMu.Unlock()
+}
+
+func AddSystemAccountAfterHook(hook systemAccountAfterHook) {
+	systemAccountAfterMu.Lock()
+	systemAccountAfterHooks = append(systemAccountAfterHooks, hook)
+	systemAccountAfterMu.Unlock()
+}
+
 type SystemAccount struct {
-	ID        string     `json:"id" toml:"id" yaml:"id"`
-	CreatedAt time.Time  `json:"createdAt" toml:"created_at" yaml:"created_at"`
-	UpdatedAt time.Time  `json:"updatedAt" toml:"updated_at" yaml:"updated_at"`
-	DeletedAt *time.Time `json:"deletedAt,omitempty" toml:"deleted_at" yaml:"deleted_at"`
+	*dm.SystemAccount
 
 	Causers CauserSlice `json:"causers,omitempty" toml:"causers" yaml:"causers"`
 }
@@ -26,11 +44,16 @@ func ToSystemAccounts(a dm.SystemAccountSlice, exclude ...string) SystemAccountS
 }
 
 func ToSystemAccount(a *dm.SystemAccount, exclude ...string) *SystemAccount {
+	for _, doBeforeHook := range systemAccountBeforeHooks {
+		doBeforeHook(a)
+	}
+
 	p := SystemAccount{
-		ID:        a.ID,
-		CreatedAt: a.CreatedAt,
-		UpdatedAt: a.UpdatedAt,
-		DeletedAt: nullDotTimeToTimePtr(a.DeletedAt),
+		SystemAccount: a,
+	}
+
+	for _, doAfterHook := range systemAccountAfterHooks {
+		doAfterHook(&p)
 	}
 
 	if a.R != nil {

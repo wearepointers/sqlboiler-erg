@@ -3,13 +3,32 @@ package erg
 
 import (
 	"github.com/wearepointers/sqlboiler-erg/example/models/dm"
+	"sync"
 )
 
+type causerBeforeHook func(*dm.Causer)
+type causerAfterHook func(*Causer)
+
+var causerBeforeMu sync.Mutex
+var causerBeforeHooks []causerBeforeHook
+
+var causerAfterMu sync.Mutex
+var causerAfterHooks []causerAfterHook
+
+func AddCauserBeforeHook(hook causerBeforeHook) {
+	causerBeforeMu.Lock()
+	causerBeforeHooks = append(causerBeforeHooks, hook)
+	causerBeforeMu.Unlock()
+}
+
+func AddCauserAfterHook(hook causerAfterHook) {
+	causerAfterMu.Lock()
+	causerAfterHooks = append(causerAfterHooks, hook)
+	causerAfterMu.Unlock()
+}
+
 type Causer struct {
-	ID              string  `json:"id" toml:"id" yaml:"id"`
-	AccountID       *string `json:"accountId,omitempty" toml:"account_id" yaml:"account_id"`
-	SystemAccountID *string `json:"systemAccountId,omitempty" toml:"system_account_id" yaml:"system_account_id"`
-	CauserType      string  `json:"causerType" toml:"causer_type" yaml:"causer_type"`
+	*dm.Causer
 
 	Account           *Account       `json:"account,omitempty" toml:"account" yaml:"account"`
 	SystemAccount     *SystemAccount `json:"systemAccount,omitempty" toml:"system_account" yaml:"system_account"`
@@ -27,11 +46,16 @@ func ToCausers(a dm.CauserSlice, exclude ...string) CauserSlice {
 }
 
 func ToCauser(a *dm.Causer, exclude ...string) *Causer {
+	for _, doBeforeHook := range causerBeforeHooks {
+		doBeforeHook(a)
+	}
+
 	p := Causer{
-		ID:              a.ID,
-		AccountID:       nullDotStringToStringPtr(a.AccountID),
-		SystemAccountID: nullDotStringToStringPtr(a.SystemAccountID),
-		CauserType:      a.CauserType,
+		Causer: a,
+	}
+
+	for _, doAfterHook := range causerAfterHooks {
+		doAfterHook(&p)
 	}
 
 	if a.R != nil {
