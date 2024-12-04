@@ -7,6 +7,26 @@ import (
 {{- end }}
 )
 
+type {{ .Name.CamelCase }}BeforeHook func(*dm.{{ .Name.PascalCase }})
+type {{ .Name.CamelCase }}AfterHook func(*{{ .Name.PascalCase }})
+
+var {{ .Name.CamelCase }}BeforeMu sync.Mutex
+var {{ .Name.CamelCase }}BeforeHooks []{{ .Name.CamelCase }}BeforeHook
+
+var {{ .Name.CamelCase }}AfterMu sync.Mutex
+var {{ .Name.CamelCase }}AfterHooks []{{ .Name.CamelCase }}AfterHook
+
+func Add{{ .Name.PascalCase }}BeforeHook(hook {{ .Name.CamelCase }}BeforeHook) {
+	{{ .Name.CamelCase }}BeforeMu.Lock()
+	{{ .Name.CamelCase }}BeforeHooks = append({{ .Name.CamelCase }}BeforeHooks, hook)
+	{{ .Name.CamelCase }}BeforeMu.Unlock()
+}
+
+func Add{{ .Name.PascalCase }}AfterHook( hook {{ .Name.CamelCase }}AfterHook) {
+	{{ .Name.CamelCase }}AfterMu.Lock()
+	{{ .Name.CamelCase }}AfterHooks = append({{ .Name.CamelCase }}AfterHooks, hook)
+	{{ .Name.CamelCase }}AfterMu.Unlock()
+}
 
 type {{ .Name.PascalCase }} struct {
     {{ if isInline }}
@@ -34,6 +54,10 @@ func To{{pluralize .Name.PascalCase}}(a {{sqlboilerPkgName}}.{{ singularize .Nam
 }
 
 func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .Name.PascalCase }}, exclude ...string) *{{ .Name.PascalCase }} {
+    for _, doBeforeHook := range {{ .Name.CamelCase }}BeforeHooks {
+		doBeforeHook(a)
+	}
+
     p := {{ .Name.PascalCase }}{
         {{- if isInline}}
         {{.Name.PascalCase}}: a,
@@ -43,6 +67,10 @@ func To{{singularize .Name.PascalCase }}(a *{{sqlboilerPkgName}}.{{singularize .
         {{- end}}
         {{- end}}
     }
+
+    for _, doAfterHook := range {{ .Name.CamelCase }}AfterHooks {
+		doAfterHook(&p)
+	}
 
     {{ $snakeCaseName := .Name.SnakeCase }}
     {{ $hasRelations := gt (len .Relations) 0}}

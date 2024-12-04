@@ -20,6 +20,9 @@ func (c *Config) getERGDefaultImports(includeModelImports bool) []string {
 		imports = append(imports, modelImports...)
 	}
 	imports = append(imports, c.getSQLBoilerModelsImportPath())
+	if includeModelImports {
+		imports = append(imports, "sync")
+	}
 	return imports
 }
 

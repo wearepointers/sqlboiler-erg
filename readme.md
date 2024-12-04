@@ -4,7 +4,7 @@ If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you k
 
 ## Todo
 - [ ] Remove different cases and just save the tag values instead
-- [ ] Add hooks (before/after)
+- [x] Add hooks (before/after)
 
 ## Run
 - SQLBoiler: `sqlboiler psql -c sqlboiler.toml`
