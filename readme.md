@@ -1,6 +1,6 @@
 # SQLBoiler Expose Relations Generator
 
-If you are a fan of [SQLBoiler](https://github.com/volatiletech/sqlboiler) you know that the relations are not exposed but place in a struct called `.R`. This works fine if you don't need expose the relations with json. This package is made, so you don't have to manually make custom functions to expose them as stated here: [https://github.com/volatiletech/sqlboiler/issues/272](https://github.com/volatiletech/sqlboiler/issues/272).
+If you are a fan of [SQLBoiler](https://github.com/aarondl/sqlboiler) you know that the relations are not exposed but place in a struct called `.R`. This works fine if you don't need expose the relations with json. This package is made, so you don't have to manually make custom functions to expose them as stated here: [https://github.com/aarondl/sqlboiler/issues/272](https://github.com/aarondl/sqlboiler/issues/272).
 
 ## Todo
 - [ ] Remove different cases and just save the tag values instead
@@ -69,7 +69,7 @@ After generating your models with sqlboiler, you can run the following command t
 
 ```text
 SQL Boiler generates a Go ORM from template files, tailored to your database schema.
-Complete documentation is available at http://github.com/volatiletech/sqlboiler
+Complete documentation is available at http://github.com/aarondl/sqlboiler
 
 Usage:
   sqlboiler-erg [flags]
